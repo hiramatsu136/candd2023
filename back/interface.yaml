@@ -1,0 +1,154 @@
+openapi: 3.0.0
+info:
+  title: 2023課内施策 IF仕様書
+  description: |
+    IF定義  
+    詳細は調整中
+
+paths:
+  /presences:
+    get:
+      summary: 出欠情報一覧取得
+      description: |
+        全ユーザーの1年分（12ヶ月分）の出欠情報を返す  
+      responses:
+        '200':
+          description: 処理成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  presences:
+                    description: |
+                      出欠情報のリスト  
+                      並び順は社員番号、年月の順  
+                      例）  
+                        社員番号101,2023/04  
+                        社員番号101,2023/05  
+                        ...  
+                        社員番号101,2024/03  
+                        社員番号102,2023/04  
+                        社員番号102,2023/05  
+                        ...  
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        number:
+                          description: 社員番号
+                          type: integer
+                          example: 123
+                        name:
+                          description: 社員の名前
+                          example: サンプル社員
+                          type: string
+                        date:
+                          description: |
+                            年月の文字列表現  
+                            yyyy/mm形式、0埋め桁数固定
+                          type: string
+                          example: 2023/04
+                        presence:
+                          description: 出欠を表す文字列
+                          type: string
+                          enum:
+                            - オンライン
+                            - 欠席
+                            - 午前帰社
+                            - 午後帰社
+                          example: オンライン
+        '500':
+          description: 内部エラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: |
+                      エラー内容を示す文字列  
+                      基本的にはそのままログやエラーメッセージ領域に埋め込む想定なので  
+                      本仕様書にメッセージ内容の列挙はしない  
+                      ※messageの文言を直接参照する処理（分岐など）は行わないでください
+                    type: string
+                    example: 内部エラーが発生しました
+
+    post:
+      summary: 出欠情報更新
+      description: |
+        指定したユーザー・年月の出欠情報を登録する  
+        同じ社員番号・年月の出欠情報が既に登録されている場合は、値を更新する
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: 
+                - number
+                - date
+                - presence
+              properties:
+                number:
+                  description: 社員番号
+                  type: integer
+                  example: 123
+                date:
+                  description: |
+                    年月の文字列表現  
+                    yyyy/mm形式、0埋め桁数固定
+                  type: string
+                  example: 2023/04
+                presence:
+                  description: 出欠を表す文字列
+                  type: string
+                  enum:
+                    - オンライン
+                    - 欠席
+                    - 午前帰社
+                    - 午後帰社
+                  example: オンライン
+      responses:
+        '200':
+          description: 処理成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: |
+                      処理成功した旨の文字列  
+                      エラー時と形式統一するためのもので、特に処理上の意味は無い
+                    type: string
+                    example: success
+        '400':
+          description: パラメータ内容不正
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: |
+                      エラー内容を示す文字列  
+                      基本的にはそのままログやエラーメッセージ領域に埋め込む想定なので  
+                      本仕様書にメッセージ内容の列挙はしない  
+                      ※messageの文言を直接参照する処理（分岐など）は行わないでください
+                    type: string
+                    example: 社員番号のフォーマットが不正です
+        '500':
+          description: 内部エラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: |
+                      エラー内容を示す文字列  
+                      基本的にはそのままログやエラーメッセージ領域に埋め込む想定なので  
+                      本仕様書にメッセージ内容の列挙はしない  
+                      ※messageの文言を直接参照する処理（分岐など）は行わないでください
+                    type: string
+                    example: 内部エラーが発生しました
